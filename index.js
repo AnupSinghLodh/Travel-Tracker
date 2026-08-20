@@ -53,17 +53,17 @@ app.post("/delete", async(req, res) => {
   const input = req.body["country"];
 
   try {
-    const countriesData = await getAllCountriesDetails();
-
-    const input_country = countriesData.find((country) => country.country_name === input);
+    const queryText = "SELECT * FROM public.countries WHERE LOWER(country_name) LIKE '%' || $1 || '%';";
+    const input_country = await getOneCountryDetails(queryText, [input.toLowerCase()]);
+    const country_code = input_country.rows[0].country_code;
     if(input_country){
       const countries = await checkVisited();
 
-      const countryExist = countries.includes(input_country.country_code);
+      const countryExist = countries.includes(country_code);
       
       if(countryExist) {
         const queryText = "DELETE FROM visited_countries WHERE country_code = $1"
-        await modifyVisitedCountriesDetails(queryText, [input_country.country_code]);
+        await modifyVisitedCountriesDetails(queryText, [country_code]);
       } else {
         throw err;
       }
