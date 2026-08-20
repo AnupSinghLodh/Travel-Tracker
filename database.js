@@ -34,11 +34,17 @@ async function modifyVisitedCountriesDetails(queryText, values = []) {
     await db.query(queryText, values);
 }
 
+async function getOneCountryDetails(queryText, values = []) {
+    const result = await db.query(queryText, values);
+    return result;
+}
+
  
 export {
   getAllCountriesDetails, 
   getVisitedCountriesDetails,
-  modifyVisitedCountriesDetails
+  modifyVisitedCountriesDetails,
+  getOneCountryDetails
 };
 
 

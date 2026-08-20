@@ -1,6 +1,9 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { getAllCountriesDetails, getVisitedCountriesDetails, modifyVisitedCountriesDetails } from './database.js'
+import { getAllCountriesDetails, 
+  getVisitedCountriesDetails, 
+  modifyVisitedCountriesDetails,
+  getOneCountryDetails } from './database.js'
 
 const app = express();
 const port = 3000;
@@ -28,12 +31,12 @@ app.post("/add", async(req, res) => {
   const input = req.body["country"];
   
   try {
-    const countriesData = await getAllCountriesDetails();
-    const input_country = countriesData.find((country) => country.country_name === input);
+    const queryText = "SELECT * FROM public.countries WHERE LOWER(country_name) LIKE '%' || $1 || '%';";
+    const input_country = await getOneCountryDetails(queryText, [input.toLowerCase()]);
     
     if(input_country){
       const queryText = "INSERT INTO visited_countries(country_code) VALUES($1)";
-      await modifyVisitedCountriesDetails(queryText, [input_country.country_code]);
+      await modifyVisitedCountriesDetails(queryText, [input_country.rows[0].country_code]);
     }
     res.redirect("/");
   } catch (error) {
